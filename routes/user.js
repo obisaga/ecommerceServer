@@ -146,7 +146,10 @@ usersRouter.post("/processOrder/:userId", async (req, res) => {
     try {
         const {userId} = req.params
         const response = await Cart.findOne({userId: userId})
-        // res.status(200).json({message: response}) 
+
+        if(!response){
+            return res.status(404).json({message: "Cart not available"})
+        }
 
         const pushOrder = await Order.create({
             userId, 

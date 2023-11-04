@@ -31,6 +31,10 @@ cartRouter.get("/", async (req, res) => {
 cartRouter.get("/:id", async (req, res) => {
     try {
         const response = await Cart.findById(req.params.id)
+
+        if(!response){
+            res.status(404).json({message: "Cart not found"})
+        }
         res.status(200).json(response) 
     } catch (error) {
         res.status(500).json({message: "Invalid entry"})
@@ -41,6 +45,10 @@ cartRouter.get("/:id", async (req, res) => {
 cartRouter.get("/user/:userId", async (req, res) => {
     try {
         const response = await Cart.find({userId: req.params.userId})
+        if(!response){
+            res.status(404).json({message: "This user has no cart"})
+        }
+        
         res.status(200).json(response) 
     } catch (error) {
         res.status(500).json({message: "Invalid entry"})

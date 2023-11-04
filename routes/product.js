@@ -46,7 +46,6 @@ productsRouter.get("/:id", async (req, res) => {
 productsRouter.put("/:id", async (req, res) => {
     try {
         const {id} = req.params
-        const {title, description, image, categories, availability, color, price} = req.body
         const response = await Product.findByIdAndUpdate(id, req.body, {new:true})
         
         if(!response){
