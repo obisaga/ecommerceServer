@@ -12,13 +12,18 @@ const usersRouter = express.Router()
 //create a new user
 usersRouter.post("/", async (req, res) => {
     try {
-
         const {firstName, lastName, birth, email, password} = req.body;
+        
         //check if email already exists findOne
+        const emailExist = await User.findOne({email})
+
+        if(emailExist){
+            return res.status(422).json({message: `Email: ${email} is already in use` })
+         }
+
         const response = await User.create({firstName, lastName, birth, email, password})
         res.status(201).json(response) 
     } catch (error) {
-        console.log(error)
         res.status(500).json({message: "Invalid entry"})
     }
 })
@@ -28,6 +33,11 @@ usersRouter.post("/", async (req, res) => {
 usersRouter.get("/", async (req, res) => {
     try {
         const response = await User.find()
+
+        if(!response){
+            return res.status(404).json({ message: `Users not found` })
+        }
+
         res.status(200).json(response) 
     } catch (error) {
         res.status(500).json({message: "Invalid entry"})
@@ -35,19 +45,26 @@ usersRouter.get("/", async (req, res) => {
 })
 
 
-//get one user by id
+// get one user by id
 usersRouter.get("/:id", async (req, res) => {
     try {
-        const response = await User.findOne({_id: req.params.id})
-        res.status(200).json(response) 
-    } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
-    }
-})
+        const {id} = req.params
+        const response = await User.findById(id)
+        console.log(response)
 
-// update the user PASSWORD only 
+        if(!response){
+            return res.status(404).json({ message: `User with id ${id} doesn't exist` })
+        }
+
+        res.status(200).json(response)
+        
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry."})
+    }
+    })
+
 // usersRouter.put("/:id", async (req, res) => {
-//     try {
+// use    try {
 //         const {id} = req.params
 //         const {firstName, lastName, birth, password} = req.body
 //         const response = await User.findByIdAndUpdate(id, {firstName, lastName, birth, password}, {new:true})
@@ -61,61 +78,69 @@ usersRouter.get("/:id", async (req, res) => {
 //     }
 // })
 
-
 usersRouter.put("/:id", async (req, res) => {
+    const {id} = req.params;
+    const {firstName, lastName, birth, password} = req.body;
     try {
-        const {id} = req.params;
-        const {firstName, lastName, birth, password} = req.body
-  
-      //  Hash the password before saving to DB
-      const hashedPassword = await bcrypt.hash(password, 10);
+        // const getData = await User.findById(id)
 
-      const response = await User.findByIdAndUpdate(id, { $set: { firstName, lastName, birth,
-        password: hashedPassword}}, {new:true});
-      res.status(201).json(response);
-    } catch (error) {
-      res.status(500).json({ message: "Invalid entry" });
-    }
-  });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const updateFields = {};
 
-
-//update the user PASSWORD only - ADMIN TEST
-usersRouter.put("/password/:id", async (req, res) => {
-    try {
-        const {id} = req.params;
-        const {firstName, lastName, birth, password} = req.body
-  
-      //  Hash the password before saving to DB
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const response = await User.findByIdAndUpdate(id, {firstName, lastName, birth}, { $set: {
-        password: hashedPassword,
-      }}, {new:true});
-      res.status(201).json(response);
-    } catch (error) {
-      res.status(500).json({ message: "Invalid entry" });
-    }
-  });
-
-
-// delete a user by ID
-usersRouter.delete("/:id", async (req, res) => {
-    try {
-        const {id} = req.params
-        const response = await User.findByIdAndDelete(id)
-
-        if(!response){
-           return res.status(404).json({message: "User not found"})
+        if (firstName !== undefined) {
+            updateFields.firstName = firstName;
         }
-        res.status(200).json({message: "User deleted successfully!"}) 
-    } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
+
+        if (lastName !== undefined) {
+            updateFields.lastName = lastName;
+        }
+
+        if (birth !== undefined) {
+            updateFields.birth = birth;
+        }
+
+        if (password !== undefined) {
+            updateFields.password = hashedPassword;
+        }
+      
+        const response = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
+
+        if (!response) {
+            res.status(404).json({ message: "User not found"  });
+        }
+
+        return res.status(201).json(response)
+        } catch (err) {
+            res.status(500).json({ message: "Invalid entry" })
     }
-})
+});
 
+// usersRouter.put("/:id", async (req, res) => {
+//     try {
+//         const {id} = req.params;
+//         const {firstName, lastName, birth, password} = req.body;
+//       //  Hash the password before saving to DB
+//       const hashedPassword = await bcrypt.hash(password, 10);
+    
+//     const response = await User.findByIdAndUpdate(
+//         id, 
+//         {firstName, 
+//         lastName, 
+//         birth,
+//         password: hashedPassword},
+//         {new:true});
 
+//       if(!response){
+//         return res.status(404).json({ message: "User not found" });
+//       } else {
+//         return res.status(201).json(response);
+//       }
 
-//PUSH CART TO ORDERS
+//     //   res.status(201).json(response);
+//     } catch (error) {
+//       res.status(500).json({ message: "Invalid entry" });
+//     }
+//   });
 
 usersRouter.post("/processOrder/:userId", async (req, res) => {
     try {
