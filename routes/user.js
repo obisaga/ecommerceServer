@@ -38,6 +38,19 @@ usersRouter.get("/:id", async (req, res) => {
 })
 
 
+//change user data
+usersRouter.put("/:id", async (req, res) => {
+    try {
+        const {firstName, lastName, birth, password} = req.body
+        const response = await User.findOne({firstName, lastName, birth, password})
+        
+        res.status(201).json(response) 
+    } catch (error) {
+        res.status(401).json({message: "Invalid entry"})
+    }
+})
+
+
 
 
 export default usersRouter
