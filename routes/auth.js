@@ -13,7 +13,6 @@ const secret = process.env.SECRET;
 
 authRouter.post("/register", async (req, res) => {
   try {
-   
     const {firstName, lastName, birth, email, password} = req.body;
   
     //check if the user exists in the database
@@ -40,34 +39,36 @@ authRouter.post("/register", async (req, res) => {
 
 
 
-// authRouter.post("/login", async (req, res) => {
-//   try {
-//     console.log(req.body);
-//     const { email, password } = req.body;
+authRouter.post("/login", async (req, res) => {
+  try {
+    
+    const { email, password } = req.body;
 
-//     //check if the user exists in db
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(400).json({ message: "Invalid credentials" });
-//     }
+    //check if the user exists in db
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials for email" });
+    }
 
-//     //Compare passwords
-//     const validPassword = await bcrypt.compare(password, user.password);
-//     if (!validPassword) {
-//       return res.status(400).json({ message: "Invalid credentials" });
-//     }
+    //Compare passwords
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid credentials for password" });
+    }
+    res.status(200).json({message: "Login Successfull"}) 
 
-//     //generate token
-//     const token = generateToken({ email: user.email });
+    //generate token
+    // const token = generateToken({ email: user.email });
 
-//     res.set("token", token);
-//     res.set("Access-Control-Expose-Headers", "token");
+    // res.set("token", token);
+    // res.set("Access-Control-Expose-Headers", "token");
 
-//     res.json({ token });
-//   } catch (error) {
-//     res.status(401).json({ message: "Invalid credentials" });
-//   }
-// });
+    // res.json({ token });
+    
+  } catch (error) {
+    res.status(401).json({ message: "Invalid credentials" });
+  }
+});
 
 export default authRouter;
 
