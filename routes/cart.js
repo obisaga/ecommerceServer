@@ -16,7 +16,7 @@ cartRouter.post("/", async (req, res) => {
 })
 
 
-//get all carts
+//get all carts - ADMIN
 cartRouter.get("/", async (req, res) => {
     try {
         const response = await Cart.find()
@@ -27,15 +27,72 @@ cartRouter.get("/", async (req, res) => {
 })
 
 
-// //get one product by id
-// cartRouter.get("/:id", async (req, res) => {
-//     try {
-//         const response = await Product.findById(req.params.id)
-//         res.status(200).json(response) 
-//     } catch (error) {
-//         res.status(500).json({message: "Invalid entry"})
-//     }
-// })
+//get one cart by cartId
+cartRouter.get("/:id", async (req, res) => {
+    try {
+        const response = await Cart.findById(req.params.id)
+        res.status(200).json(response) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+//get one cart by userId
+cartRouter.get("/user/:userId", async (req, res) => {
+    try {
+        const response = await Cart.find({userId: req.params.userId})
+        res.status(200).json(response) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+// update cart by CART ID
+cartRouter.put("/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const response = await Cart.findByIdAndUpdate(id, req.body, {new:true})
+        if(!response){
+            res.status(404).json({message: "Cart not found"})
+        }
+        res.status(200).json({message: "Cart updated successfully!"}) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+
+// update cart by USERS ID
+cartRouter.put("/user/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const response = await Cart.findOneAndUpdate({userId:id}, req.body, {new:true})
+        if(!response){
+            res.status(404).json({message: "Cart not found"})
+        }
+        res.status(200).json({message: "Cart updated successfully!"}) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+
+// delete cart 
+cartRouter.delete("/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const response = await Cart.findByIdAndDelete(id)
+        if(!response){
+            res.status(404).json({message: "Cart not found"})
+        }
+        res.status(200).json({message: "Cart deleted successfully!"}) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+
+
 
 
 

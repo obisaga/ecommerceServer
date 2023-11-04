@@ -6,6 +6,8 @@ import usersRouter from "./routes/user.js"
 import productsRouter from "./routes/product.js"
 import ordersRouter from "./routes/order.js"
 import cartRouter from "./routes/cart.js"
+import authRouter from "./routes/auth.js"
+
 
 // import authRouter from "./routes/auth.js"
 
@@ -24,8 +26,7 @@ app.use("/api/users", usersRouter)
 app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/cart", cartRouter);
-
-// app.use("/api/auth", authRouter)
+app.use("/api/auth", authRouter)
 
 const port = 3000 || process.env.port
 

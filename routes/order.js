@@ -8,7 +8,6 @@ const secret = process.env.SECRET;
 //create a new order
 ordersRouter.post("/", async (req, res) => {
     try {
-        // const {title, description, image, categories, availability{size, amount}, color, price} = req.body;
         const response = await Order.create(req.body)
         res.status(201).json(response) 
     } catch (error) {
@@ -28,15 +27,35 @@ ordersRouter.get("/", async (req, res) => {
 })
 
 
-// //get one product by id
-// ordersRouter.get("/:id", async (req, res) => {
-//     try {
-//         const response = await Product.findById(req.params.id)
-//         res.status(200).json(response) 
-//     } catch (error) {
-//         res.status(500).json({message: "Invalid entry"})
-//     }
-// })
+//get one order by id
+ordersRouter.get("/:id", async (req, res) => {
+    try {
+        const response = await Order.findById(req.params.id)
+        if(!response){
+            return res.status(404).json({message: "Order not found"})
+         }  
+         res.status(200).json(response)
+     } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+//delete order by id
+ordersRouter.delete("/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const response = await Order.findByIdAndDelete(id)
+
+        if(!response){
+           return res.status(404).json({message: "Order not found"})
+        }
+        res.status(200).json({message: "Order deleted successfully!"}) 
+    } catch (error) {
+        res.status(500).json({message: "Invalid entry"})
+    }
+})
+
+
 
 
 
