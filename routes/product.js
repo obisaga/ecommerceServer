@@ -10,7 +10,7 @@ productsRouter.post("/", async (req, res) => {
     try {
         // const {title, description, image, categories, availability{size, amount}, color, price} = req.body;
         const response = await Product.create(req.body)
-        res.status(201).json(response) 
+        res.status(201).json({message: "Item added"}) 
     } catch (error) {
         res.status(500).json({message: "Invalid entry"})
     }

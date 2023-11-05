@@ -19,7 +19,9 @@ cartRouter.post("/", async (req, res) => {
 //get all carts - ADMIN
 cartRouter.get("/", async (req, res) => {
     try {
-        const response = await Cart.find()
+        const response = await Cart.find().populate('userId')
+        //how to populate product id also?
+
         res.status(200).json(response) 
     } catch (error) {
         res.status(500).json({message: "Invalid entry"})
@@ -30,7 +32,7 @@ cartRouter.get("/", async (req, res) => {
 //get one cart by cartId
 cartRouter.get("/:id", async (req, res) => {
     try {
-        const response = await Cart.findById(req.params.id)
+        const response = await Cart.findById(req.params.id).populate('userId')
 
         if(!response){
             res.status(404).json({message: "Cart not found"})
@@ -44,7 +46,7 @@ cartRouter.get("/:id", async (req, res) => {
 //get one cart by userId
 cartRouter.get("/user/:userId", async (req, res) => {
     try {
-        const response = await Cart.find({userId: req.params.userId})
+        const response = await Cart.find({userId: req.params.userId}).populate('userId')
         if(!response){
             res.status(404).json({message: "This user has no cart"})
         }
