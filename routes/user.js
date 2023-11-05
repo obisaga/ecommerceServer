@@ -3,6 +3,11 @@ import User from "../models/User.js"
 import Cart from "../models/Cart.js"
 import Order from "../models/Order.js"
 import bcrypt from "bcrypt";
+import tokenAuth from "../middlewares/tokenAuth.js";
+// import adminAuth from "../middlewares/adminAuth.js";
+import errorHandler from "../middlewares/errorHandler.js";
+
+
 
 const usersRouter = express.Router()
 
@@ -10,7 +15,7 @@ const usersRouter = express.Router()
 
 
 //create a new user
-usersRouter.post("/", async (req, res) => {
+usersRouter.post("/", async (req, res, next) => {
     try {
         const {firstName, lastName, birth, email, password} = req.body;
         
@@ -24,45 +29,67 @@ usersRouter.post("/", async (req, res) => {
         const response = await User.create({firstName, lastName, birth, email, password})
         res.status(201).json(response) 
     } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
+        next()
     }
-})
+}, errorHandler)
 
 
 //get all users
-usersRouter.get("/", async (req, res) => {
+usersRouter.get("/", tokenAuth, async (req, res, next) => {
     try {
         const response = await User.find()
 
         if(!response){
-            return res.status(404).json({ message: `Users not found` })
+            return next({statusCode: 404, message: `Users not found`})
         }
 
         res.status(200).json(response) 
+    
     } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
+        return next()
     }
-})
+}, errorHandler)
+
+//TO DISCUSS WITH NURIA
+//ADMIN access to all users
+// usersRouter.get("/admin/:id", adminAuth, async (req, res) => {
+//     try {
+//         const response = await User.find()
+
+//         if(!response){
+//             return res.status(404).json({ message: `Users not found` })
+//         }
+
+//         res.status(200).json(response) 
+    
+//     } catch (error) {
+//         res.status(500).json({message: "Invalid entry"})
+//     }
+// })
+
 
 
 // get one user by id
-usersRouter.get("/:id", async (req, res) => {
+usersRouter.get("/:id", tokenAuth, async (req, res, next) => {
     try {
         const {id} = req.params
         const response = await User.findById(id)
         console.log(response)
 
+        // if(!response){
+        //     return res.status(404).json({ message: `User with id ${id} doesn't exist` })
+            
+        // }
         if(!response){
-            return res.status(404).json({ message: `User with id ${id} doesn't exist` })
+            return next({statusCode: 404, message: `User with id ${id} doesn't exist`})
         }
-
         res.status(200).json(response)
         
-    } catch (error) {
-        res.status(500).json({message: "Invalid entry."})
-    }
-    })
+    } catch (err) {
+        return next() 
+    }}, errorHandler);
 
+    //DISCUSS WITH NURIA - PUT METHOD to change just one line - bcrypt unables it
 // usersRouter.put("/:id", async (req, res) => {
 // use    try {
 //         const {id} = req.params
@@ -78,7 +105,7 @@ usersRouter.get("/:id", async (req, res) => {
 //     }
 // })
 
-usersRouter.put("/:id", async (req, res) => {
+usersRouter.put("/:id", tokenAuth, async (req, res, next) => {
     try {
         const {id} = req.params
         const {firstName, lastName, birth, password} = req.body;
@@ -86,13 +113,13 @@ usersRouter.put("/:id", async (req, res) => {
 
         const response = await User.findByIdAndUpdate(id, {firstName, lastName, birth, password:hashedPassword}, {new:true})
         if(!response){
-            res.status(404).json({message: "User not found"})
+            return next({statusCode: 404, message: `User not found`})
         }
         res.status(200).json(response) 
     } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
+        return next()
     }
-})
+}, errorHandler)
 
 // usersRouter.put("/:id", async (req, res) => {
 //     const {id} = req.params;
@@ -158,33 +185,14 @@ usersRouter.put("/:id", async (req, res) => {
 //     }
 //   });
 
-// usersRouter.post("/reserve/:userId", async (req, res) => {
-//     try {
-//         const {userId} = req.params
-//         const response = await Cart.findOne({userId: userId})
 
-//         if(!response){
-//             return res.status(404).json({message: "Cart not available"})
-//         }
-
-//         const pushOrder = await Order.create({
-//             userId, 
-//             products: response.products, 
-//             })
-
-//         res.status(201).json(pushOrder) 
-
-//     } catch (error) {
-//         res.status(500).json({message: "Invalid entry"})
-//     }
-// })
-usersRouter.post("/reserve/:userId", async (req, res) => {
+usersRouter.post("/reserve/:userId", tokenAuth, async (req, res, next) => {
     try {
         const {userId} = req.params
         const response = await Cart.findOne({userId: userId})
 
         if(!response){
-            return res.status(404).json({message: "Cart not available"})
+            return next({statusCode: 404, message: `Cart not available`})
         }
 
         const pushOrder = await Order.create({
@@ -195,8 +203,8 @@ usersRouter.post("/reserve/:userId", async (req, res) => {
         res.status(201).json(pushOrder) 
 
     } catch (error) {
-        res.status(500).json({message: "Invalid entry"})
+       return next()
     }
-})
+}, errorHandler)
 
 export default usersRouter
