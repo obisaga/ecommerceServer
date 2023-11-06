@@ -28,27 +28,30 @@ productsRouter.get("/", async (req, res, next) => {
 }, errorHandler)
 
 
-// get product by SEARCH
-productsRouter.get("/search", async (req, res) => {
+// get products by SEARCH
+productsRouter.get("/search", async (req, res, next) => {
     try{
-        let search = {}
+        let search = []
 
         if (req.query.categories){
-            search = {categories: req.query.categories}
+            // search = {categories: req.query.categories}
+            search = {categories: { $in: req.query.categories}}
         }
 
-        const productList = await Product.find(search)
-
-        if(!productList){
-            return res.status(404).json({message: "Products not found"})
-        }
-
+        const productList = await Product.find(search).populate("categories")
         res.status(200).json(productList)
 
+        if(!productList){
+            return res.status(404).json({message: "Searched products not found"})
+        } else {
+            const products = await Product.find()
+            return res.json(products)  // return all products if product list not found
+        }
+
     }catch (err){
-        res.status(500).json(err)
+        return next()
     }
-})
+}, errorHandler)
 
 
 //get one product by id
@@ -57,12 +60,10 @@ productsRouter.get("/:id", async (req, res, next) => {
         const response = await Product.findById(req.params.id)
         if(!response){
             return next({statusCode: 404, message: `Product not found`})
-        
         }
 
         res.status(200).json(response) 
     } catch (err) {
-        console.log(err)
         return next() }
 }, errorHandler)
 
