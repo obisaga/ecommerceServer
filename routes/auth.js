@@ -2,16 +2,15 @@ import express from "express";
 import User from "../models/User.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import errorHandler from "../middlewares/errorHandler.js";
 
 const authRouter = express.Router();
 
 const secret = process.env.SECRET;
 
-const generateToken = (data) => {
-  return jwt.sign(data, secret, { expiresIn: "1800s" });
-};
 
-authRouter.post("/register", async (req, res) => {
+
+authRouter.post("/register", async (req, res, next) => {
   try {
     const {firstName, lastName, birth, email, password} = req.body;
   
@@ -32,16 +31,20 @@ authRouter.post("/register", async (req, res) => {
     });
     res.status(201).json(response);
   } catch (error) {
-    res.status(500).json({ message: "Invalid entry" });
+    next()
   }
-});
+}, errorHandler);
 
 
 
 
-authRouter.post("/login", async (req, res) => {
+const generateToken = (data) => {
+  return jwt.sign(data, secret, { expiresIn: "180000s" });
+};
+
+
+authRouter.post("/login", async (req, res, next) => {
   try {
-    
     const { email, password } = req.body;
 
     //check if the user exists in db
@@ -55,22 +58,18 @@ authRouter.post("/login", async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({ message: "Invalid credentials for password" });
     }
-    res.status(200).json({message: "Login Successfull"}) 
+    
 
-    //generate token
+    // generate token
     const token = generateToken({ email: user.email });
-
+    console.log(token)
     res.set("token", token);
     res.set("Access-Control-Expose-Headers", "token");
 
-    res.json({ token });
-    
+    res.status(200).json({token: token, message: "Login Successfull"}) 
   } catch (error) {
-    res.status(401).json({ message: "Invalid credentials" });
+    next()
   }
-});
+}, errorHandler);
 
 export default authRouter;
-
-
-
