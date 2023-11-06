@@ -7,10 +7,12 @@ import productsRouter from "./routes/product.js"
 import ordersRouter from "./routes/order.js"
 import cartRouter from "./routes/cart.js"
 import authRouter from "./routes/auth.js"
+// import authJwt from "./routes/verifyToken.js"
 
 const app = express()
 
 app.use(express.json())
+// app.use(authJwt());
 app.use(express.urlencoded({extended: true}));
 
 app.use(cors({

@@ -31,10 +31,9 @@ productsRouter.get("/", async (req, res, next) => {
 // get products by SEARCH
 productsRouter.get("/search", async (req, res, next) => {
     try{
-        let search = []
+        let search = []  //empty array to populate products
 
         if (req.query.categories){
-            // search = {categories: req.query.categories}
             search = {categories: { $in: req.query.categories}}
         }
 
