@@ -1,15 +1,12 @@
 import express from "express";
 import Order from "../models/Order.js"
-import tokenAuth from "../middlewares/adminAuth.js";
 import errorHandler from "../middlewares/errorHandler.js";
-
-
+import userAuth from "../middlewares/userAuth.js";
 const ordersRouter = express.Router()
 const secret = process.env.SECRET;
 
-
 //create a new order
-ordersRouter.post("/", tokenAuth, async (req, res, next) => {
+ordersRouter.post("/", async (req, res, next) => {
     try {
         const token = req.body.token
         const response = await Order.create(req.body)
@@ -21,7 +18,7 @@ ordersRouter.post("/", tokenAuth, async (req, res, next) => {
 
 
 //get all orders
-ordersRouter.get("/", tokenAuth, async (req, res, next) => {
+ordersRouter.get("/", async (req, res, next) => {
     try {
         const response = await Order.find()
         res.status(200).json(response) 
@@ -31,8 +28,8 @@ ordersRouter.get("/", tokenAuth, async (req, res, next) => {
 }, errorHandler)
 
 
-//get one order by id
-ordersRouter.get("/:id", tokenAuth, async (req, res, next) => {
+//get one order by order id
+ordersRouter.get("/:id", async (req, res, next) => {
     try {
         const response = await Order.findById(req.params.id)
         if(!response){
@@ -44,8 +41,24 @@ ordersRouter.get("/:id", tokenAuth, async (req, res, next) => {
         return next() }
 }, errorHandler)
 
-//delete order by id
-ordersRouter.delete("/:id", tokenAuth, async (req, res, next) => {
+
+//get order by USER id
+ordersRouter.get("/user/:userId", userAuth, async (req, res, next) => {
+    try {
+        const response = await Order.find({userId: req.params.userId}).populate('userId')
+        if(!response){
+            return next({statusCode: 404, message: `This user has no cart`})
+        }
+        
+        res.status(200).json(response) 
+    } catch (error) {
+        return next()
+    }
+}, errorHandler)
+
+
+//delete order by id / ADMIN
+ordersRouter.delete("/:id", async (req, res, next) => {
     try {
         const {id} = req.params
         const response = await Order.findByIdAndDelete(id)
@@ -58,7 +71,5 @@ ordersRouter.delete("/:id", tokenAuth, async (req, res, next) => {
         console.log(err)
         return next() }
 }, errorHandler)
-
-
 
 export default ordersRouter

@@ -6,7 +6,7 @@ const productsRouter = express.Router()
 const secret = process.env.SECRET;
 
 
-//create a new product
+//create a new product / ADMIN
 productsRouter.post("/", async (req, res, next) => {
     try {
         // const {title, description, image, categories, availability{size, amount}, color, price} = req.body;
@@ -15,6 +15,32 @@ productsRouter.post("/", async (req, res, next) => {
     } catch (err) {
         console.log(err)
         return next() }
+}, errorHandler)
+
+
+// get products by SEARCH
+// for example /search?categories=rings&categories=tiara
+productsRouter.get("/search", async (req, res, next) => {
+    try{
+        let search = []  //empty array to populate products
+
+        if (req.query.categories){
+            search = {categories: { $in: req.query.categories}}
+        }
+
+        const productList = await Product.find(search).populate("categories")
+        res.status(200).json(productList)
+
+        if(!productList){
+            return res.status(404).json({message: "Searched products not found"})
+        } else {
+            const products = await Product.find()
+            return res.json(products)  // return all products if product list not found
+        }
+
+    }catch (err){
+        return next()
+    }
 }, errorHandler)
 
 
@@ -35,7 +61,6 @@ productsRouter.get("/:id", async (req, res, next) => {
         const response = await Product.findById(req.params.id)
         if(!response){
             return next({statusCode: 404, message: `Product not found`})
-        
         }
 
         res.status(200).json(response) 
@@ -44,7 +69,7 @@ productsRouter.get("/:id", async (req, res, next) => {
         return next() }
 }, errorHandler)
 
-//change product data
+//change product data / ADMIN
 productsRouter.put("/:id", async (req, res, next) => {
     try {
         const {id} = req.params
@@ -57,10 +82,11 @@ productsRouter.put("/:id", async (req, res, next) => {
         res.status(200).json(response) 
     } catch (err) {
         console.log(err)
-        return next() }
+        return next() 
+    }
 }, errorHandler)
 
-//delete product by id
+//delete product by id / ADMIN
 productsRouter.delete("/:id", async (req, res, next) => {
     try {
         const {id} = req.params

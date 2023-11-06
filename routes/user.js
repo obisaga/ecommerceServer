@@ -3,11 +3,9 @@ import User from "../models/User.js"
 import Cart from "../models/Cart.js"
 import Order from "../models/Order.js"
 import bcrypt from "bcrypt";
-import tokenAuth from "../middlewares/tokenAuth.js";
-// import adminAuth from "../middlewares/adminAuth.js";
+import userAuth from "../middlewares/userAuth.js";
+import adminAuth from "../middlewares/adminAuth.js";
 import errorHandler from "../middlewares/errorHandler.js";
-
-
 
 const usersRouter = express.Router()
 
@@ -15,27 +13,27 @@ const usersRouter = express.Router()
 
 
 //create a new user
-usersRouter.post("/", async (req, res, next) => {
-    try {
-        const {firstName, lastName, birth, email, password} = req.body;
+// usersRouter.post("/", async (req, res, next) => {
+//     try {
+//         const {firstName, lastName, birth, email, password} = req.body;
         
-        //check if email already exists findOne
-        const emailExist = await User.findOne({email})
+//         //check if email already exists findOne
+//         const emailExist = await User.findOne({email})
 
-        if(emailExist){
-            return res.status(422).json({message: `Email: ${email} is already in use` })
-         }
+//         if(emailExist){
+//             return res.status(422).json({message: `Email: ${email} is already in use` })
+//          }
 
-        const response = await User.create({firstName, lastName, birth, email, password})
-        res.status(201).json(response) 
-    } catch (error) {
-        next()
-    }
-}, errorHandler)
+//         const response = await User.create({firstName, lastName, birth, email, password})
+//         res.status(201).json(response) 
+//     } catch (error) {
+//         next()
+//     }
+// }, errorHandler)
 
 
-//get all users
-usersRouter.get("/", tokenAuth, async (req, res, next) => {
+//get all users / ADMIN
+usersRouter.get("/", async (req, res, next) => {
     try {
         const response = await User.find()
 
@@ -50,143 +48,65 @@ usersRouter.get("/", tokenAuth, async (req, res, next) => {
     }
 }, errorHandler)
 
-//TO DISCUSS WITH NURIA
-//ADMIN access to all users
-// usersRouter.get("/admin/:id", adminAuth, async (req, res) => {
-//     try {
-//         const response = await User.find()
-
-//         if(!response){
-//             return res.status(404).json({ message: `Users not found` })
-//         }
-
-//         res.status(200).json(response) 
-    
-//     } catch (error) {
-//         res.status(500).json({message: "Invalid entry"})
-//     }
-// })
-
-
 
 // get one user by id
-usersRouter.get("/:id", tokenAuth, async (req, res, next) => {
+usersRouter.get("/:id", userAuth, async (req, res, next) => {
     try {
         const {id} = req.params
         const response = await User.findById(id)
-        console.log(response)
+        console.log(response, "response")
 
-        // if(!response){
-        //     return res.status(404).json({ message: `User with id ${id} doesn't exist` })
-            
-        // }
         if(!response){
             return next({statusCode: 404, message: `User with id ${id} doesn't exist`})
         }
         res.status(200).json(response)
         
     } catch (err) {
+        res.status(500).json({message: "Invalid entry"})
         return next() 
     }}, errorHandler);
 
-    //DISCUSS WITH NURIA - PUT METHOD to change just one line - bcrypt unables it
-// usersRouter.put("/:id", async (req, res) => {
-// use    try {
-//         const {id} = req.params
-//         const {firstName, lastName, birth, password} = req.body
-//         const response = await User.findByIdAndUpdate(id, {firstName, lastName, birth, password}, {new:true})
-        
-//         if(!response){
-//             res.status(404).json({message: "User not found"})
-//         }
-//         res.status(200).json(response) 
-//     } catch (error) {
-//         res.status(500).json({message: "Invalid entry"})
-//     }
-// })
-
-usersRouter.put("/:id", tokenAuth, async (req, res, next) => {
-    try {
-        const {id} = req.params
-        const {firstName, lastName, birth, password} = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const response = await User.findByIdAndUpdate(id, {firstName, lastName, birth, password:hashedPassword}, {new:true})
-        if(!response){
-            return next({statusCode: 404, message: `User not found`})
-        }
-        res.status(200).json(response) 
-    } catch (error) {
-        return next()
-    }
-}, errorHandler)
-
-// usersRouter.put("/:id", async (req, res) => {
-//     const {id} = req.params;
-//     const {firstName, lastName, birth, password} = req.body;
-//     try {
-//         // const getData = await User.findById(id)
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const updateFields = {};
-
-//         if (firstName !== undefined) {
-//             updateFields.firstName = firstName;
-//         }
-
-//         if (lastName !== undefined) {
-//             updateFields.lastName = lastName;
-//         }
-
-//         if (birth !== undefined) {
-//             updateFields.birth = birth;
-//         }
-
-//         if (password !== undefined) {
-//             updateFields.password = hashedPassword;
-//         }
-      
-//         const response = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
-
-//         if (!response) {
-//             res.status(404).json({ message: "User not found"  });
-//         }
-
-//         return res.status(201).json(response)
-//         } catch (err) {
-//             res.status(500).json({ message: "Invalid entry" })
-//     }
-// });
-
-// usersRouter.put("/:id", async (req, res) => {
-//     try {
-//         const {id} = req.params;
-//         const {firstName, lastName, birth, password} = req.body;
-//       //  Hash the password before saving to DB
-//       const hashedPassword = await bcrypt.hash(password, 10);
     
-//     const response = await User.findByIdAndUpdate(
-//         id, 
-//         {firstName, 
-//         lastName, 
-//         birth,
-//         password: hashedPassword},
-//         {new:true});
+//change many or just one line
+usersRouter.put("/:id", userAuth, async (req, res, next) => {
+    const {id} = req.params;
+    const {firstName, lastName, birth, password} = req.body;
+    try {
+        const updateFields = {};
 
-//       if(!response){
-//         return res.status(404).json({ message: "User not found" });
-//       } else {
-//         return res.status(201).json(response);
-//       }
+        if (firstName !== undefined) {
+            updateFields.firstName = firstName;
+        }
 
-//     //   res.status(201).json(response);
-//     } catch (error) {
-//       res.status(500).json({ message: "Invalid entry" });
-//     }
-//   });
+        if (lastName !== undefined) {
+            updateFields.lastName = lastName;
+        }
 
+        if (birth !== undefined) {
+            updateFields.birth = birth;
+        }
 
-usersRouter.post("/reserve/:userId", tokenAuth, async (req, res, next) => {
+        if (password !== undefined) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields.password = hashedPassword;
+        }
+      
+        const response = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
+
+        if (!response) {
+            return next({statusCode: 404, message: `User not found`})
+            // res.status(404).json({ message: "User not found"  });
+        }
+
+        return res.status(201).json(response)
+        } catch (err) {
+            console.log(err);
+            return next()
+    }
+}, errorHandler);
+
+//Push users cart to order
+usersRouter.post("/reserve/:userId", userAuth, async (req, res, next) => {
     try {
         const {userId} = req.params
         const response = await Cart.findOne({userId: userId})

@@ -3,6 +3,7 @@ import User from "../models/User.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import errorHandler from "../middlewares/errorHandler.js";
+import adminAuth from "../middlewares/adminAuth.js";
 
 const authRouter = express.Router();
 
@@ -15,9 +16,9 @@ authRouter.post("/register", async (req, res, next) => {
     const {firstName, lastName, birth, email, password} = req.body;
   
     //check if the user exists in the database
-    const userExists = await User.findOne(req.body);
+    const userExists = await User.findOne({email: req.body.email});
     if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+      return next({statusCode: 404, message: "User already exists"})
     }
 
     //  Hash the password before saving to DB
@@ -31,7 +32,9 @@ authRouter.post("/register", async (req, res, next) => {
     });
     res.status(201).json(response);
   } catch (error) {
-    next()
+    console.log(error)
+     next()
+
   }
 }, errorHandler);
 
@@ -62,6 +65,7 @@ authRouter.post("/login", async (req, res, next) => {
 
     // generate token
     const token = generateToken({ email: user.email });
+    // const token = generateToken({ isAdmin: user.isAdmin });
     console.log(token)
     res.set("token", token);
     res.set("Access-Control-Expose-Headers", "token");

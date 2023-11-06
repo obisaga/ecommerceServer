@@ -20,7 +20,7 @@ const secret = process.env.SECRET;
     const {isAdmin} = req.user
     const {token} = req.body
 
-    if (isAdmin === "true") {
+    if (isAdmin === true) {
     } else {
       res.status(403).json("You are not allowed to do that!");
     }
