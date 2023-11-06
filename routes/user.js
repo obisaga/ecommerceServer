@@ -142,7 +142,7 @@ usersRouter.put("/:id", async (req, res) => {
 //     }
 //   });
 
-usersRouter.post("/processOrder/:userId", async (req, res) => {
+usersRouter.post("/reserve/:userId", async (req, res) => {
     try {
         const {userId} = req.params
         const response = await Cart.findOne({userId: userId})

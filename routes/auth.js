@@ -7,9 +7,9 @@ const authRouter = express.Router();
 
 const secret = process.env.SECRET;
 
-// const generateToken = (data) => {
-//   return jwt.sign(data, secret, { expiresIn: "1800s" });
-// };
+const generateToken = (data) => {
+  return jwt.sign(data, secret, { expiresIn: "1800s" });
+};
 
 authRouter.post("/register", async (req, res) => {
   try {
@@ -58,12 +58,12 @@ authRouter.post("/login", async (req, res) => {
     res.status(200).json({message: "Login Successfull"}) 
 
     //generate token
-    // const token = generateToken({ email: user.email });
+    const token = generateToken({ email: user.email });
 
-    // res.set("token", token);
-    // res.set("Access-Control-Expose-Headers", "token");
+    res.set("token", token);
+    res.set("Access-Control-Expose-Headers", "token");
 
-    // res.json({ token });
+    res.json({ token });
     
   } catch (error) {
     res.status(401).json({ message: "Invalid credentials" });
