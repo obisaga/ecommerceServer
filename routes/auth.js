@@ -64,13 +64,13 @@ authRouter.post("/login", async (req, res, next) => {
     
 
     // generate token
-    const token = generateToken({ email: user.email });
+    const token = generateToken({ id: user._id });
     // const token = generateToken({ isAdmin: user.isAdmin });
     console.log(token)
     res.set("token", token);
     res.set("Access-Control-Expose-Headers", "token");
 
-    res.status(200).json({token: token, message: "Login Successfull"}) 
+    res.status(200).json({token, user}) 
   } catch (error) {
     next()
   }

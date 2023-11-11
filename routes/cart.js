@@ -21,8 +21,8 @@ cartRouter.post("/", async (req, res, next) => {
 //get all carts / ADMIN
 cartRouter.get("/", async (req, res, next) => {
     try {
-        const response = await Cart.find().populate('userId')
-        //how to populate product id also?
+        const response = await Cart.find().populate('userId').populate('products.productId')
+  
 
         res.status(200).json(response) 
     } catch (error) {
