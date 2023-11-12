@@ -52,6 +52,8 @@ cartRouter.get("/user/:userId", async (req, res, next) => {
         const response = await Cart.find({userId: req.params.userId}).populate('userId')
         if(!response){
             return next({statusCode: 404, message: `This user has no cart`})
+        } else if (!response.length) {
+            return next({statusCode: 404, message: `This user has no cart`})
         }
         
         res.status(200).json(response) 
