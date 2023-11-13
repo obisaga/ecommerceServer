@@ -19,29 +19,57 @@ productsRouter.post("/", async (req, res, next) => {
 
 
 // get products by SEARCH
-// for example /search?categories=rings&categories=tiara
+// for example http://localhost:3000/api/products/search?categories=rings&categories=tiara
+// productsRouter.get("/search", async (req, res, next) => {
+//     try{
+
+
+//         let search = {}  //empty array to populate products
+//         // let {search} = req.query  
+//         if (req.query.categories){
+//              search.categories = { $in: req.query.categories}
+//         }
+
+//         const productList = await Product.find(search)
+//         res.status(200).json(productList)
+
+//         if(!productList || productList.length === 0){
+//             return res.status(404).json({message: "Searched products not found"})
+//         } else {
+//             res.status(200).json(productList)
+
+//             // const products = await Product.find()
+//             // return res.json(products)  // return all products if product list not found
+//         }
+        
+
+//     }catch (err){
+//         return next()
+//     }
+// }, errorHandler)
 productsRouter.get("/search", async (req, res, next) => {
-    try{
-        let search = []  //empty array to populate products
+    try {
+        const input = req.query.query; // Assuming the input parameter is named 'query'
 
-        if (req.query.categories){
-            search = {categories: { $in: req.query.categories}}
+        if (!input) {
+            return res.status(400).json({ message: "Missing 'query' parameter in the request." });
         }
 
-        const productList = await Product.find(search).populate("categories")
-        res.status(200).json(productList)
+        // Your search logic based on the 'input'
+        const searchCriteria = { $text: { $search: input } }; // Assuming you have set up text indexing for search
 
-        if(!productList){
-            return res.status(404).json({message: "Searched products not found"})
+        const productList = await Product.find(searchCriteria).populate("categories");
+
+        if (!productList || productList.length === 0) {
+            return res.status(404).json({ message: "Searched products not found" });
         } else {
-            const products = await Product.find()
-            return res.json(products)  // return all products if product list not found
+            res.status(200).json(productList);
         }
-
-    }catch (err){
-        return next()
+    } catch (err) {
+        // Pass the error to the next middleware
+        return next(err);
     }
-}, errorHandler)
+}, errorHandler);
 
 
 //get all products

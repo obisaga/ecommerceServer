@@ -42,7 +42,7 @@ authRouter.post("/register", async (req, res, next) => {
 
 
 const generateToken = (data) => {
-  return jwt.sign(data, secret, { expiresIn: "180000s" });
+  return jwt.sign(data, secret, { expiresIn: "2h" });
 };
 
 
