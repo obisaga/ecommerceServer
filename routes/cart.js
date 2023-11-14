@@ -100,7 +100,7 @@ cartRouter.put("/user/:userId/:productId", async (req, res, next) => {
     console.log(userId)
     console.log(productId)
     
-        // Update the document in the database
+    // Update the document in the database
         const result = await Cart.updateOne(
           {
             "userId": userId,
@@ -116,9 +116,9 @@ cartRouter.put("/user/:userId/:productId", async (req, res, next) => {
             arrayFilters: [
               { "product.productId": productId }
             ]
-          }
+          }, {new:true}
         );
-    console.log(result)
+    console.log(result) 
         // Check if the document was found and updated
         if (result.modifiedCount === 1) {
           return res.json({ message: 'Quantity updated successfully' });
@@ -132,6 +132,51 @@ cartRouter.put("/user/:userId/:productId", async (req, res, next) => {
     }, errorHandler);
 
 
+    // delete one product from the CART
+    cartRouter.put("/user/:userId/remove/:productId", async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            const productId = req.params.productId;
+        console.log(userId)
+        console.log(productId)
+        
+        // Update the document in the database
+            const result = await Cart.updateOne(
+              {
+                "userId": userId,
+                "products.productId": productId
+              },
+              {
+                $pull: {
+                    "products": { "productId": productId }
+                 
+                }
+              }
+              ,
+              {
+                arrayFilters: [
+                  { "product.productId": productId }
+                ]
+              }, {new:true}
+            );
+        console.log(result) 
+            // Check if the document was found and updated
+            if (result.modifiedCount === 1) {
+              return res.json({ message: 'Product removed successfully' });
+            } else {
+              return res.status(404).json({ error: 'Product could not be removed' });
+            }
+          } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+        }, errorHandler);
+
+
+
+
+
+    
 // cartRouter.put("/user/:id/:productId", async (req, res, next) => {
 //     try {
 //         const {id} = req.params

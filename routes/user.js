@@ -49,23 +49,23 @@ usersRouter.get("/", async (req, res, next) => {
 }, errorHandler)
 
 //get user by req. user params
-usersRouter.get('/user', userAuth, async (req, res) => {
-    try {
-        const response = await User.findById(req.user.id)
-        console.log(response, "response")
+// usersRouter.get('/user', userAuth, async (req, res) => {
+//     try {
+//         const response = await User.findById(req.user.id)
+//         console.log(response, "response")
 
-        if(!response){
-            return res.status(404).json({ message: `User with id ${id} doesn't exist` })
+//         if(!response){
+//             return res.status(404).json({ message: `User with id ${id} doesn't exist` })
 
-        }
+//         }
 
-        res.status(200).json(response)
+//         res.status(200).json(response)
 
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: `User with id doesn't exist` })
-    }
-  });
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({ message: `User with id doesn't exist` })
+//     }
+//   });
 
 // get one user by id
 usersRouter.get("/:id", userAuth, async (req, res, next) => {
