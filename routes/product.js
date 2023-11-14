@@ -19,44 +19,14 @@ productsRouter.post("/", async (req, res, next) => {
 
 
 // get products by SEARCH
-// for example http://localhost:3000/api/products/search?categories=rings&categories=tiara
-// productsRouter.get("/search", async (req, res, next) => {
-//     try{
-
-
-//         let search = {}  //empty array to populate products
-//         // let {search} = req.query  
-//         if (req.query.categories){
-//              search.categories = { $in: req.query.categories}
-//         }
-
-//         const productList = await Product.find(search)
-//         res.status(200).json(productList)
-
-//         if(!productList || productList.length === 0){
-//             return res.status(404).json({message: "Searched products not found"})
-//         } else {
-//             res.status(200).json(productList)
-
-//             // const products = await Product.find()
-//             // return res.json(products)  // return all products if product list not found
-//         }
-        
-
-//     }catch (err){
-//         return next()
-//     }
-// }, errorHandler)
+// for example /search?categories=rings&categories=tiara
 productsRouter.get("/search", async (req, res, next) => {
-    try {
-        const input = req.query.query; // Assuming the input parameter is named 'query'
+    try{
+        let search = []  //empty array to populate products
 
-        if (!input) {
-            return res.status(400).json({ message: "Missing 'query' parameter in the request." });
+        if (req.query.categories){
+            search = {categories: { $in: req.query.categories}}
         }
-
-        // Your search logic based on the 'input'
-        const searchCriteria = { $text: { $search: input } }; // Assuming you have set up text indexing for search
 
         const productList = await Product.find(searchCriteria).populate("categories");
 
