@@ -92,6 +92,46 @@ cartRouter.put("/user/:id", async (req, res, next) => {
     }
 }, errorHandler)
 
+cartRouter.put("/user/:userId/:productId", async (req, res, next) => {
+    try {
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+        const newQuantity = req.body.newQuantity; // Assuming the new quantity is sent in the request body
+    console.log(userId)
+    console.log(productId)
+    
+        // Update the document in the database
+        const result = await Cart.updateOne(
+          {
+            "userId": userId,
+            "products.productId": productId
+          },
+          {
+            $set: {
+              "products.$[product].quantity": newQuantity
+            }
+          }
+          ,
+          {
+            arrayFilters: [
+              { "product.productId": productId }
+            ]
+          }
+        );
+    console.log(result)
+        // Check if the document was found and updated
+        if (result.modifiedCount === 1) {
+          return res.json({ message: 'Quantity updated successfully' });
+        } else {
+          return res.status(404).json({ error: 'Quantity could not be updated' });
+        }
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }, errorHandler);
+
+
 // cartRouter.put("/user/:id/:productId", async (req, res, next) => {
 //     try {
 //         const {id} = req.params
