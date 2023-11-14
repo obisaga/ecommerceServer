@@ -20,7 +20,7 @@ productsRouter.post("/", async (req, res, next) => {
 
 // get products by SEARCH
 // for example /search?categories=rings&categories=tiara
-productsRouter.get("/products/search", async (req, res, next) => {
+productsRouter.get("/search", async (req, res, next) => {
     try{
         let search = []  //empty array to populate products
 
@@ -28,20 +28,18 @@ productsRouter.get("/products/search", async (req, res, next) => {
             search = {categories: { $in: req.query.categories}}
         }
 
-        const productList = await Product.find(search).populate("categories")
-        res.status(200).json(productList)
+        const productList = await Product.find(searchCriteria).populate("categories");
 
-        if(!productList){
-            return res.status(404).json({message: "Searched products not found"})
+        if (!productList || productList.length === 0) {
+            return res.status(404).json({ message: "Searched products not found" });
         } else {
-            const products = await Product.find()
-            return res.json(products)  // return all products if product list not found
+            res.status(200).json(productList);
         }
-
-    }catch (err){
-        return next()
+    } catch (err) {
+        // Pass the error to the next middleware
+        return next(err);
     }
-}, errorHandler)
+}, errorHandler);
 
 
 //get all products

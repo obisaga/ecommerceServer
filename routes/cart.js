@@ -45,15 +45,15 @@ cartRouter.get("/:id", async (req, res, next) => {
     }
 },errorHandler)
 
-//get one cart by userId
+//get one cart by userIdnpm 
 cartRouter.get("/user/:userId", async (req, res, next) => {
     try {
         // const response = await Cart.find({userId: req.params.userId}).populate('userId')
-        const response = await Cart.find({userId: req.params.userId}).populate('userId')
+        const response = await Cart.find({userId: req.params.userId}).populate('userId').populate('products.productId')
         if(!response){
             return next({statusCode: 404, message: `This user has no cart`})
         } else if (!response.length) {
-            return next({statusCode: 404, message: `This user has no cart`})
+            return next({statusCode: 204, message: `This user has no cart`})
         }
         
         res.status(200).json(response) 
@@ -82,6 +82,7 @@ cartRouter.put("/user/:id", async (req, res, next) => {
     try {
         const {id} = req.params
         const response = await Cart.findOneAndUpdate({userId:id}, req.body, {new:true})
+        //if quantity is 0 dont update but find product and delete it from the cart
         if(!response){
             return next({statusCode: 404, message: `Cart not found`})
         }
@@ -90,6 +91,19 @@ cartRouter.put("/user/:id", async (req, res, next) => {
         return next()
     }
 }, errorHandler)
+
+// cartRouter.put("/user/:id/:productId", async (req, res, next) => {
+//     try {
+//         const {id} = req.params
+//         const response = await Cart.findOneAndUpdate({userId:id}, req.body, {new:true})
+//         if(!response){
+//             return next({statusCode: 404, message: `Cart not found`})
+//         }
+//         res.status(200).json({message: "Cart updated successfully!"}) 
+//     } catch (error) {
+//         return next()
+//     }
+// }, errorHandler)
 
 
 // delete cart 
