@@ -20,7 +20,7 @@ productsRouter.post("/", async (req, res, next) => {
 
 // get products by SEARCH
 // for example /search?categories=rings&categories=tiara
-productsRouter.get("/search", async (req, res, next) => {
+productsRouter.get("/products/search", async (req, res, next) => {
     try{
         let search = []  //empty array to populate products
 
