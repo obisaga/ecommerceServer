@@ -28,7 +28,7 @@ productsRouter.get("/search", async (req, res, next) => {
             search = {categories: { $in: req.query.categories}}
         }
 
-        const productList = await Product.find(searchCriteria).populate("categories");
+        const productList = await Product.find(search).populate("categories");
 
         if (!productList || productList.length === 0) {
             return res.status(404).json({ message: "Searched products not found" });
