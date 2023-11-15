@@ -67,6 +67,25 @@ productsRouter.get("/:id", async (req, res, next) => {
         return next() }
 }, errorHandler)
 
+//get one product by category
+productsRouter.get("/:categories", async (req, res, next) => {
+    try {
+        const { categories } = req.params;
+        const response = await Product.find({ categories: { $in: [categories] } })
+        if(!response){
+            return next({statusCode: 404, message: `Product not found`})
+        }
+
+        if (!response || response.length === 0) {
+            return next({ statusCode: 404, message: `Products not found for category: ${categories}` });
+        }
+
+        res.status(200).json(response) 
+    } catch (err) {
+        console.log(err)
+        return next() }
+}, errorHandler)
+
 //change product data / ADMIN
 productsRouter.put("/:id", async (req, res, next) => {
     try {
