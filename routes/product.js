@@ -68,7 +68,7 @@ productsRouter.get("/:id", async (req, res, next) => {
 }, errorHandler)
 
 //get one product by category
-productsRouter.get("/:categories", async (req, res, next) => {
+productsRouter.get("/filter/:categories", async (req, res, next) => {
     try {
         const { categories } = req.params;
         const response = await Product.find({ categories: { $in: [categories] } })
