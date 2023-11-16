@@ -68,12 +68,12 @@ cartRouter.get("/:id", async (req, res, next) => {
 cartRouter.get("/user/:userId", async (req, res, next) => {
     try {
         // const response = await Cart.find({userId: req.params.userId}).populate('userId')
-        const response = await Cart.find({userId: req.params.userId}).populate('userId').populate('products.productId')
+        const response = await Cart.findOne({userId: req.params.userId}).populate('userId').populate('products.productId')
         if(!response){
-            return next({statusCode: 404, message: `This user has no cart`})
-        } else if (!response.length) {
-            return next({statusCode: 204, message: `This user has no cart`})
-        }
+            return next({statusCode: 404, message: `This user has no cart`})}
+        // } else if (!response.length) {
+        //     return next({sta204tusCode: , message: `This user has no cart`})
+        // }
         
         res.status(200).json(response) 
     } catch (error) {
@@ -200,6 +200,8 @@ cartRouter.put("/user/:userId/:productId", async (req, res, next) => {
         const newQuantity = req.body.newQuantity; // Assuming the new quantity is sent in the request body
     console.log(userId)
     console.log(productId)
+    console.log(newQuantity)
+
     
     // Update the document in the database
         const result = await Cart.updateOne(
@@ -306,5 +308,18 @@ cartRouter.delete("/:id", async (req, res, next) => {
     }
 },errorHandler)
 
+
+cartRouter.delete("/user/:userId", async (req, res, next) => {
+  try {
+      // const {userId} = req.params
+      const response = await Cart.findOneAndDelete({userId: req.params.userId})
+      if(!response){
+          return next({statusCode: 404, message: `Cart not found`})
+      }
+      res.status(200).json({message: "Cart deleted successfully!"}) 
+  } catch (error) {
+      return next()
+  }
+},errorHandler)
 
 export default cartRouter
