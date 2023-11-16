@@ -86,7 +86,9 @@ usersRouter.get("/:id", userAuth, async (req, res, next) => {
 
     
 //change many or just one line
-usersRouter.put("/:id", userAuth, async (req, res, next) => {
+// usersRouter.put("/:id", userAuth, async (req, res, next) => {
+usersRouter.put("/:id", async (req, res, next) => {
+
     const {id} = req.params;
     const {firstName, lastName, birth, password} = req.body;
     try {
