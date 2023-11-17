@@ -22,16 +22,23 @@ productsRouter.post("/", async (req, res, next) => {
 // for example /search?categories=rings&categories=tiara
 productsRouter.get("/search", async (req, res, next) => {
     try{
-        let search = []  //empty array to populate products
+        let search = {}  
+   
+        const searchTerm = req.query.categories;
 
-        if (req.query.categories){
-            search = {categories: { $in: req.query.categories}}
-        }
+        if (searchTerm) {
+         const regex = new RegExp(searchTerm, 'i'); // 'i' for case-insensitive matching
+
+        search.$or = [
+            { categories: { $in: [regex] } },
+            { title: { $regex: regex } }
+        ];
+}
 
         const productList = await Product.find(search).populate("categories");
 
         if (!productList || productList.length === 0) {
-            return res.status(404).json({ message: "Searched products not found" });
+            return res.status(204).json({ message: "Searched products not found" });
         } else {
             res.status(200).json(productList);
         }
