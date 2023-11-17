@@ -126,7 +126,9 @@ usersRouter.put("/:id", async (req, res, next) => {
 }, errorHandler);
 
 //Push users cart to order
-usersRouter.post("/reserve/:userId", userAuth, async (req, res, next) => {
+// usersRouter.post("/reserve/:userId", userAuth, async (req, res, next) => {
+    usersRouter.post("/reserve/:userId", async (req, res, next) => {
+
     try {
         const {userId} = req.params
         const response = await Cart.findOne({userId: userId})
@@ -138,6 +140,8 @@ usersRouter.post("/reserve/:userId", userAuth, async (req, res, next) => {
         const pushOrder = await Order.create({
             userId, 
             products: response.products, 
+            totalAmount: response.totalAmount,
+            totalAmountPrice: response.totalAmountPrice
             })
 
         res.status(201).json(pushOrder) 
