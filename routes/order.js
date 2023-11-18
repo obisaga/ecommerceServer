@@ -47,7 +47,7 @@ ordersRouter.get("/:id", async (req, res, next) => {
     ordersRouter.get("/user/:userId", async (req, res, next) => {
 
     try {
-        const response = await Order.findOne({userId: req.params.userId}).populate('userId').populate('products.productId')
+        const response = await Order.find({userId: req.params.userId}).populate('userId').populate('products.productId')
         if(!response){
             return next({statusCode: 404, message: `This user has no cart`})
         }
