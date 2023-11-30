@@ -30,7 +30,7 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/auth", authRouter)
 
-const port = 3000 || process.env.port
+const port = 3000 || process.env.PORT
 
 
 
