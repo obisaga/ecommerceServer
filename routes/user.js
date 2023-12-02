@@ -32,6 +32,7 @@ const usersRouter = express.Router()
 // }, errorHandler)
 
 
+
 //get all users / ADMIN
 usersRouter.get("/", async (req, res, next) => {
     try {

@@ -18,16 +18,16 @@ app.use(express.urlencoded({extended: true}));
 
 app.use(cors({
     origin: "*",
-
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
     credentials: true,
   }))
 
 
-  app.get("/api/welcome"), (req, res) => {
-    res.status(200).send({message: "Welcome to The Jewellery Shop API!"})
+app.get("/api/welcome"), (req, res) => {
+  res.status(200).send({message: "Welcome to The Jewellery Shop API!"})
   }
+
 
 app.use("/api/users", usersRouter)
 app.use("/api/products", productsRouter);
