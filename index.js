@@ -24,6 +24,11 @@ app.use(cors({
     credentials: true,
   }))
 
+
+  app.get("/api/welcome"), (req, res) => {
+    res.status(200).send({message: "Welcome to The Jewellery Shop API!"})
+  }
+
 app.use("/api/users", usersRouter)
 app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
