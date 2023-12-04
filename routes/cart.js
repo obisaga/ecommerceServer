@@ -193,17 +193,17 @@ cartRouter.delete("/:id", async (req, res, next) => {
 },errorHandler)
 
 
-// cartRouter.delete("/user/:userId", async (req, res, next) => {
-//   try {
-//       // const {userId} = req.params
-//       const response = await Cart.findOneAndDelete({userId: req.params.userId})
-//       if(!response){
-//           return next({statusCode: 404, message: `Cart not found`})
-//       }
-//       res.status(200).json({message: "Cart deleted successfully!"}) 
-//   } catch (error) {
-//       return next()
-//   }
-// },errorHandler)
+cartRouter.delete("/user/:userId", async (req, res, next) => {
+ try {
+   const {userId} = req.params
+       const response = await Cart.findOneAndDelete({userId: req.params.userId})
+ if(!response){
+ return next({statusCode: 404, message: `Cart not found`})
+ }
+       res.status(200).json({message: "Cart deleted successfully!"}) 
+   } catch (error) {
+       return next()
+   }
+ },errorHandler)
 
 export default cartRouter
